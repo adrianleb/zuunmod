@@ -143,7 +143,7 @@ class Yolo
     # @camera.element.webkitRequestPointerLock()
     # @controls = new THREE.FlyControls(@camera)
     @controls = new THREE.FirstPersonControls(@camera)
-    @controls.movementSpeed = 300
+    @controls.movementSpeed = 2000
     @controls.lookSpeed = 0.039
     @controls.lookVertical = false #// Don't allow the player to look up or down. This is a temporary fix to keep people from flying
     @controls.noFly = true #// Don't allow hitting R or F to go up or down
@@ -187,13 +187,20 @@ class Yolo
 
 
 
-  makeCube: (size, pos, url) ->
+  makeCube: (size, pos, trackUrl, trackData) ->
+    # baseEl = document.createElement( 'section' )
+    # baseEl.style.width = '400px'
+    # baseEl.style.height = '600px'
+    # baseEl.classList.add 'box_base'
+
     wrapEl = document.createElement( 'section' )
     wrapEl.style.width = '200px'
     wrapEl.style.height = '200px'
     wrapEl.classList.add 'box_wrap'
 
+
     cubeWrap = new THREE.CSS3DObject(wrapEl)
+
     @centerVector = new THREE.Vector3()
 
 
@@ -201,11 +208,18 @@ class Yolo
 
     for i in [0...6]
 
-      img = new Image()
-      img.src = "http://placekitten.com/1000/#{i + 1000}"
+      # img = new Image()
+      console.log trackData.object
       face = document.createElement( 'div' )
-      face.appendChild img
-      face.style.background = 'red'
+
+      title = trackData.object.metadata.title
+      artist = if trackData.object.metadata.artist? then trackData.object.metadata.artist.name else '' 
+      tmpl = "<h1>#{artist}</h1><h2>#{title}</h2>"
+      $(face).append tmpl
+      if trackData.object.images?
+        face.style.background = "url(#{trackData.object.images.medium.url})"
+
+      # face.appendChild img
       face.style.width = size * 2 + "px"
       face.style.height = size * 2 + "px"
       face.classList.add 'box_face'
@@ -226,7 +240,7 @@ class Yolo
     for i in [0..faces.length-1]
       faces[i].lookAt @centerVector
 
-
+    # cubeBase.add cubeWrap
     cubeWrap.position.set(pos.x, pos.y, pos.z)
 
 
@@ -243,7 +257,8 @@ class Yolo
     @scene.add cubeWrap
     @cubez.push {
       obj: cubeWrap
-      track: url
+      track: trackUrl
+      trackData: trackData
       producer: producer
       gainNode: gainNode
     }
@@ -278,13 +293,14 @@ class Yolo
 
       # create #{count} amount of cubes on coords at certain size
       for track in @tracks
-        track = track.object.stream.url + "?client_id=c280d0c248513cfc78d7ee05b52bf15e"
-        size = Math.random() * 30
+
+        trackUrl = track.object.stream.url + "?client_id=c280d0c248513cfc78d7ee05b52bf15e"
+        size = (Math.random() * 100) + 100
         coords = 
-          x: Math.random() * 3000
+          x: Math.random() * 30000
           y: Math.random() * 5
-          z: Math.random() * 3000
-        @makeCube size,coords, track
+          z: Math.random() * 30000
+        @makeCube size,coords, trackUrl, track
         
 
 
@@ -301,38 +317,14 @@ class Yolo
       @animate()
     ), 200
     
-    # animate translation
-    @moveThem()
-
-
-
-
-  moveThem: ->
-    coords = 
-        x: Math.random() * 3000
-        y: Math.random() * 5
-        z: Math.random() * 3000
-
-    # for cube in @cubez
-      # console.log cube
-      # @transform cube.obj, coords, 1000
-
-  # transform: (object, target, duration) ->
-
-  #   TWEEN.Tween( object )
-  #           .to( { x: target.x, y: target.y, z: target.z }, Math.random() * duration + duration )
-  #           .easing( TWEEN.Easing.Exponential.InOut )
-  #           .start()
-
-  #   @
-
-
+ 
   haveFun: ->
     if @cubez?.length
       for cube in @cubez
-        cube.obj.rotation.x +=0.05# * Math.random() 
-        cube.obj.rotation.y +=0.04
-        cube.obj.rotation.z +=0.03
+        cube.obj.rotation.x +=0.003# * Math.random() 
+        cube.obj.rotation.y +=0.002
+        cube.obj.rotation.z +=0.001
+
 
         distance = space.distance(@controls.target, cube.obj.position)
 
@@ -341,9 +333,10 @@ class Yolo
         value = (1 / Math.pow((distance), 2)) * 10000
         # value = 1000000 / Math.pow(@controls.target.distanceTo(cube.obj.position), 2)
         cube.gainNode.gain.value = if value > 1 then 1 else value
-        if @counter < 200
-          # console.log value, distance, @controls.target, cube.obj.position
-          @counter++
+        # if @counter < 200
+
+        #   console.log value, distance, @controls.target, cube.obj.position
+        #   @counter++
 
   animate: ->
     # unless not @allowedToRender
@@ -351,7 +344,7 @@ class Yolo
 
 
     yolo.haveFun()
-    TWEEN.update()
+
     delta = yolo.clock.getDelta()
     yolo.controls.update(delta)
     yolo.renderer.render( yolo.scene, yolo.camera )

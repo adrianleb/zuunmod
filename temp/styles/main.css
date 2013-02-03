@@ -19,3 +19,7 @@
 .box_face img {
   width: 100%;
 }
+/* line 30, ../../app/styles/main.scss */
+.box_face h1 {
+  -webkit-font-smoothing: antialiased;
+}

@@ -155,7 +155,7 @@
       this.camera.position.set(0, 0, 0);
       this.listener = new Listener('listener');
       this.controls = new THREE.FirstPersonControls(this.camera);
-      this.controls.movementSpeed = 300;
+      this.controls.movementSpeed = 2000;
       this.controls.lookSpeed = 0.039;
       this.controls.lookVertical = false;
       this.controls.noFly = true;
@@ -210,8 +210,8 @@
       return console.log('yolo back');
     });
 
-    Yolo.prototype.makeCube = function(size, pos, url) {
-      var cubeWrap, face, faces, gainNode, i, img, producer, wrapEl, _i, _j, _ref;
+    Yolo.prototype.makeCube = function(size, pos, trackUrl, trackData) {
+      var artist, cubeWrap, face, faces, gainNode, i, producer, title, tmpl, wrapEl, _i, _j, _ref;
       wrapEl = document.createElement('section');
       wrapEl.style.width = '200px';
       wrapEl.style.height = '200px';
@@ -220,11 +220,15 @@
       this.centerVector = new THREE.Vector3();
       faces = [];
       for (i = _i = 0; _i < 6; i = ++_i) {
-        img = new Image();
-        img.src = "http://placekitten.com/1000/" + (i + 1000);
+        console.log(trackData.object);
         face = document.createElement('div');
-        face.appendChild(img);
-        face.style.background = 'red';
+        title = trackData.object.metadata.title;
+        artist = trackData.object.metadata.artist != null ? trackData.object.metadata.artist.name : '';
+        tmpl = "<h1>" + artist + "</h1><h2>" + title + "</h2>";
+        $(face).append(tmpl);
+        if (trackData.object.images != null) {
+          face.style.background = "url(" + trackData.object.images.medium.url + ")";
+        }
         face.style.width = size * 2 + "px";
         face.style.height = size * 2 + "px";
         face.classList.add('box_face');
@@ -245,7 +249,8 @@
       this.scene.add(cubeWrap);
       this.cubez.push({
         obj: cubeWrap,
-        track: url,
+        track: trackUrl,
+        trackData: trackData,
         producer: producer,
         gainNode: gainNode
       });
@@ -259,7 +264,7 @@
       this.scene = new THREE.Scene();
       console.log(shuffler, 'is shuffler ther?');
       tracks = shuffler.fetchChannel('jazz', function(tracks) {
-        var coords, cubeCount, goodTracks, size, track, _i, _len, _ref, _results;
+        var coords, cubeCount, goodTracks, size, track, trackUrl, _i, _len, _ref, _results;
         goodTracks = _.filter(tracks, function(t, i) {
           return t.object.stream.platform === 'soundcloud';
         });
@@ -273,14 +278,14 @@
         _results = [];
         for (_i = 0, _len = _ref.length; _i < _len; _i++) {
           track = _ref[_i];
-          track = track.object.stream.url + "?client_id=c280d0c248513cfc78d7ee05b52bf15e";
-          size = Math.random() * 30;
+          trackUrl = track.object.stream.url + "?client_id=c280d0c248513cfc78d7ee05b52bf15e";
+          size = (Math.random() * 100) + 100;
           coords = {
-            x: Math.random() * 3000,
+            x: Math.random() * 30000,
             y: Math.random() * 5,
-            z: Math.random() * 3000
+            z: Math.random() * 30000
           };
-          _results.push(_this.makeCube(size, coords, track));
+          _results.push(_this.makeCube(size, coords, trackUrl, track));
         }
         return _results;
       });
@@ -289,19 +294,9 @@
       this.renderer.domElement.style.position = 'absolute';
       this.renderer.domElement.style.top = 0;
       $('body').append(this.renderer.domElement);
-      _.delay((function() {
+      return _.delay((function() {
         return _this.animate();
       }), 200);
-      return this.moveThem();
-    };
-
-    Yolo.prototype.moveThem = function() {
-      var coords;
-      return coords = {
-        x: Math.random() * 3000,
-        y: Math.random() * 5,
-        z: Math.random() * 3000
-      };
     };
 
     Yolo.prototype.haveFun = function() {
@@ -311,17 +306,12 @@
         _results = [];
         for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
           cube = _ref1[_i];
-          cube.obj.rotation.x += 0.05;
-          cube.obj.rotation.y += 0.04;
-          cube.obj.rotation.z += 0.03;
+          cube.obj.rotation.x += 0.003;
+          cube.obj.rotation.y += 0.002;
+          cube.obj.rotation.z += 0.001;
           distance = space.distance(this.controls.target, cube.obj.position);
           value = (1 / Math.pow(distance, 2)) * 10000;
-          cube.gainNode.gain.value = value > 1 ? 1 : value;
-          if (this.counter < 200) {
-            _results.push(this.counter++);
-          } else {
-            _results.push(void 0);
-          }
+          _results.push(cube.gainNode.gain.value = value > 1 ? 1 : value);
         }
         return _results;
       }
@@ -331,7 +321,6 @@
       var delta;
       requestAnimationFrame(yolo.animate);
       yolo.haveFun();
-      TWEEN.update();
       delta = yolo.clock.getDelta();
       yolo.controls.update(delta);
       return yolo.renderer.render(yolo.scene, yolo.camera);
