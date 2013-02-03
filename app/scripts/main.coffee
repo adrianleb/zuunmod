@@ -76,62 +76,13 @@ class Listener extends Object
       o.gainNode.gain.value = if value > 1 then 1 else value
       $('.gain').html(o.gainNode.gain.value)
 
-class Dessau
-  constructor: ->
-    # @producer = new Producer('producer')
-    # @listener = new Listener('listener')
-
-    # @listener.listen(@producer)
-
-    # @producer.start()
-
-    # @loop()
-
-    # # arrg!
-    # # @producer.draw()
-    # @listener.draw()
-    # $('input').keyup (e) =>
-    #   # update the position of the object
-    #   objName = $(e.target).parent().data('bind')
-    #   cl($(e.target).parent())
-    #   attrName = $(e.target).attr('name')
-    #   p = @[objName].getPosition()
-    #   newVal = parseInt($(e.target).val())
-    #   unless isNaN(newVal)
-    #     p[attrName] = newVal
-    #     @[objName].setPosition(p)
-
-    #     # draw the distance
-    #     $('.distance').html(space.distance(@producer.getPosition(), @listener.getPosition()))
-
-
-  # # very silly game loop
-  # loop: ->
-  #   _.each [@producer, @listener], (o) ->
-  #     o.loop()
-
-  #   setTimeout((=>
-  #     @loop()), 100)
-
-
 class Yolo
-
   constructor: ->
-    # @renderer = 'hai'
     @buildCam()
     @buildEls()
     @clock = new THREE.Clock()
-    # @buildControls()
     @allowedToRender = true
     
-    console.log 'built something?'
-
-
-
-
-
-
-
   buildCam: ->
     @camera = new THREE.PerspectiveCamera( 35, window.innerWidth / window.innerHeight/2, 1, 100 )
     @camera.position.set( 0, 0, 0 )
@@ -154,44 +105,7 @@ class Yolo
 
 
 
-  buildControls: ->
-
-    $(document).on 'click', '.media_each', (e) =>
-      # console.log @, e, e.currentTarget
-
-    $(window).on 'keydown', (e) =>
-
-      key = e.which
-      @holdingShift = true if key is 16
-      # @controls.activeLook = true if @holdingShift
-      switch key
-        when 37 then @camera.position.x--
-        when 39 then @camera.position.x++
-        when 38 then ( if @holdingShift then @camera.position.y-- else @camera.position.z-- )
-        when 40 then ( if @holdingShift then @camera.position.y++ else @camera.position.z++ )
-
-    $(window).on 'keyup', (e) =>
-      # unless not @allowedToRender 
-        # @controlRendering 'stop'
-      key = e.which
-      @holdingShift = false if key is 16
-      console.log @holdingShift
-      false
-
-
-  $(window).on 'blur', (e) =>
-    console.log 'yolo out'
-
-  $(window).on 'focus', (e) =>
-    console.log 'yolo back'
-
-
-
   makeCube: (size, pos, trackUrl, trackData) ->
-    # baseEl = document.createElement( 'section' )
-    # baseEl.style.width = '400px'
-    # baseEl.style.height = '600px'
-    # baseEl.classList.add 'box_base'
 
     wrapEl = document.createElement( 'section' )
     wrapEl.style.width = '200px'
@@ -419,7 +333,6 @@ class Shuffler
   window.shuffler = new Shuffler()
   window.space = new Space()
   window.context = new webkitAudioContext()
-  # window.dessau = new Dessau()
   window.yolo = new Yolo()
 
   # setTimeout ( ->
