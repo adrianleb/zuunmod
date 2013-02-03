@@ -1,5 +1,5 @@
 (function() {
-  var Dessau, Listener, Object, Producer, Space, Vector, Yolo,
+  var Listener, Object, Producer, Space, Vector, Yolo,
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
@@ -131,23 +131,13 @@
 
   })(Object);
 
-  Dessau = (function() {
-
-    function Dessau() {}
-
-    return Dessau;
-
-  })();
-
   Yolo = (function() {
-    var _this = this;
 
     function Yolo() {
       this.buildCam();
       this.buildEls();
       this.clock = new THREE.Clock();
       this.allowedToRender = true;
-      console.log('built something?');
     }
 
     Yolo.prototype.buildCam = function() {
@@ -162,55 +152,6 @@
       this.controls.activeLook = true;
       return this;
     };
-
-    Yolo.prototype.buildControls = function() {
-      var _this = this;
-      $(document).on('click', '.media_each', function(e) {
-        return console.log(_this, e, e.currentTarget);
-      });
-      $(window).on('keydown', function(e) {
-        var key;
-        key = e.which;
-        if (key === 16) {
-          _this.holdingShift = true;
-        }
-        switch (key) {
-          case 37:
-            return _this.camera.position.x--;
-          case 39:
-            return _this.camera.position.x++;
-          case 38:
-            if (_this.holdingShift) {
-              return _this.camera.position.y--;
-            } else {
-              return _this.camera.position.z--;
-            }
-          case 40:
-            if (_this.holdingShift) {
-              return _this.camera.position.y++;
-            } else {
-              return _this.camera.position.z++;
-            }
-        }
-      });
-      return $(window).on('keyup', function(e) {
-        var key;
-        key = e.which;
-        if (key === 16) {
-          _this.holdingShift = false;
-        }
-        console.log(_this.holdingShift);
-        return false;
-      });
-    };
-
-    $(window).on('blur', function(e) {
-      return console.log('yolo out');
-    });
-
-    $(window).on('focus', function(e) {
-      return console.log('yolo back');
-    });
 
     Yolo.prototype.makeCube = function(size, pos) {
       var cubeWrap, face, faces, gainNode, i, img, producer, wrapEl, _i, _j, _ref;
@@ -326,7 +267,7 @@
 
     return Yolo;
 
-  }).call(this);
+  })();
 
   (function() {
     window.space = new Space();
