@@ -42,23 +42,26 @@ function producer_set_reverb_impulse_response(producer, url) {
   request.open("GET", url, true);
   request.responseType = "arraybuffer";
   request.onload = function() { 
-    producer.convolver.buffer = context.createBuffer(request.response, false);
+    // producer.convolver.buffer = context.createBuffer(request.response, false);
   }
   
   request.send();
 }
 
-function producer_load_buffer_and_play(producer) {
+function producer_load_buffer_and_play(cube) {
+  console.log(cube,'yolo')
   // Load asynchronously
   var request = new XMLHttpRequest();
-  request.open("GET", producer.cube.track, true);
+  request.open("GET", '/wav/gottomove.mp3', true);
+  // request.open("GET", cube.track, true);
   request.responseType = "arraybuffer";
 
-  request.onload = function() { 
-    producer.source.buffer = context.createBuffer(request.response, true);
-    producer.source.noteOn(0);
-  }
+  request.onload = function() {
+    console.log(request.response, request) 
 
+    cube.producer.source.buffer = context.createBuffer(request.response, true);
+    cube.producer.source.noteOn(0);
+  }
   request.send();
 }
 
@@ -69,8 +72,8 @@ function producer_schedule(producer) {
    // Calculate velocity for doppler effect
 
    targetPosition = yolo.controls.target
-
-   producer.panner.setPosition(targetPosition.x, targetPosition.y, targetPosition.z); 
+   context.listener.setPosition(targetPosition.x, targetPosition.y, targetPosition.z); 
+   // producer.panner.setPosition(targetPosition.x, targetPosition.y, targetPosition.z); 
    
    // Velocity (for doppler effect)
    var kVelocityScale = 50.0;
@@ -99,9 +102,13 @@ function producer_schedule(producer) {
      producer.gLastY = 0;
      producer.gLastZ = 0;
 
-     producer.dopplerFactor = 1.0;
+     producer.dopplerFactor = 0.006;
 
-     producer.source = context.createBufferSource();
+
+     // producer.source = context.createBufferSource();
+     producer.source = context.createMediaElementSource(cube.trackObj)
+     // producer.source.mediaElement.volume = 0
+     // console.log(producer.source, 'le source', cube);
 
      producer.masterGainNode = context.createGainNode();
      producer.dryGainNode = context.createGainNode();
@@ -111,9 +118,9 @@ function producer_schedule(producer) {
      producer.convolver = context.createConvolver();
 
      // Setup initial gains
-     producer.masterGainNode.gain.value = 2.0;
-     producer.dryGainNode.gain.value = 3.0;
-     producer.wetGainNode.gain.value = kAmbientGain;
+     producer.masterGainNode.gain.value = 5.0;
+     producer.dryGainNode.gain.value = 10.0;
+     producer.wetGainNode.gain.value = producerKAmbientGain;
 
      // Connect dry mix
      producer.source.connect(producer.panner);
@@ -132,15 +139,16 @@ function producer_schedule(producer) {
      // setReverbImpulseResponse('impulse-responses/house-impulses/dining-living-true-stereo.wav');
      producer_set_reverb_impulse_response(producer, 'wav/s3_r4_bd.wav');
 
-     producer.source.playbackRate.value = 0.75;
+     // producer.source.playbackRate.value = 0.75;
 
      // copying the position from cube to panner (we'll need to keep this up to date) 
      producer.panner.setPosition(cube.obj.position.x, cube.obj.position.y, cube.obj.position.z);
 
-     producer.source.loop = true;
+     // producer.source.loop = true;
 
      // Load up initial buffer
-     producer_load_buffer_and_play(producer);  
+     // producer_load_buffer_and_play(cube);  
+     producer.source.mediaElement.play()
 
      // Start moving the source
      producer_schedule(producer);

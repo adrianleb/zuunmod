@@ -112,6 +112,12 @@ class Yolo
     wrapEl.style.height = '200px'
     wrapEl.classList.add 'box_wrap'
 
+    # audioEl = "<audio src='#{trackUrl}' />"
+    audioEl = new Audio
+    audioEl.src = trackUrl
+    audioEl.preload = 'none'
+
+    $(wrapEl).append audioEl
 
     cubeWrap = new THREE.CSS3DObject(wrapEl)
 
@@ -158,28 +164,36 @@ class Yolo
     cubeWrap.position.set(pos.x, pos.y, pos.z)
 
 
-    # DESSAU - make it sing
-    producer = new Producer('producer')
-    gainNode = context.createGainNode()
-    producer.out.connect(gainNode)
-    gainNode.connect(context.destination)
-    producer.start()
+    # # DESSAU - make it sing
+    # producer = new Producer('producer')
+    # gainNode = context.createGainNode()
+    # producer.out.connect(gainNode)
+    # gainNode.connect(context.destination)
+    # producer.start()
 
 
 
     # add to scene and store 
     @scene.add cubeWrap
-    @cubez.push {
-      obj: cubeWrap
-      track: trackUrl
-      trackData: trackData
-      producer: producer
-      gainNode: gainNode
-    }
 
-    console.log @cubez
+    _.delay (=>
+
+      cubeObj = {
+        obj: cubeWrap
+        track: trackUrl
+        trackObj: $(audioEl)[0]
+        trackData: trackData
+      }
 
 
+      @cubez.push cubeObj
+
+      # _.delay (=>
+      producer_init cubeObj
+      # ), 100
+      console.log @cubez
+
+    ), 10
 
 
 
@@ -207,13 +221,13 @@ class Yolo
 
       # create #{count} amount of cubes on coords at certain size
       for track in @tracks
-
+      # track = @tracks[0]
         trackUrl = track.object.stream.url + "?client_id=c280d0c248513cfc78d7ee05b52bf15e"
         size = (Math.random() * 100) + 100
         coords = 
-          x: Math.random() * 30000
+          x: Math.random() * 10000
           y: Math.random() * 5
-          z: Math.random() * 30000
+          z: Math.random() * 10000
         @makeCube size,coords, trackUrl, track
         
 
@@ -240,13 +254,13 @@ class Yolo
         cube.obj.rotation.z +=0.001
 
 
-        distance = space.distance(@controls.target, cube.obj.position)
-
+        # distance = space.distance(@controls.target, cube.obj.position)
+        producer_schedule( cube.producer )
 
         # crazyness
-        value = (1 / Math.pow((distance), 2)) * 10000
+        # value = (1 / Math.pow((distance), 2)) * 10000
         # value = 1000000 / Math.pow(@controls.target.distanceTo(cube.obj.position), 2)
-        cube.gainNode.gain.value = if value > 1 then 1 else value
+        # cube.gainNode.gain.value = if value > 1 then 1 else value
         # if @counter < 200
 
         #   console.log value, distance, @controls.target, cube.obj.position

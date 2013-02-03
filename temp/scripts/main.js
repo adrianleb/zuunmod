@@ -154,11 +154,16 @@
     };
 
     Yolo.prototype.makeCube = function(size, pos, trackUrl, trackData) {
-      var artist, cubeWrap, face, faces, gainNode, i, producer, title, tmpl, wrapEl, _i, _j, _ref;
+      var artist, audioEl, cubeWrap, face, faces, i, title, tmpl, wrapEl, _i, _j, _ref,
+        _this = this;
       wrapEl = document.createElement('section');
       wrapEl.style.width = '200px';
       wrapEl.style.height = '200px';
       wrapEl.classList.add('box_wrap');
+      audioEl = new Audio;
+      audioEl.src = trackUrl;
+      audioEl.preload = 'none';
+      $(wrapEl).append(audioEl);
       cubeWrap = new THREE.CSS3DObject(wrapEl);
       this.centerVector = new THREE.Vector3();
       faces = [];
@@ -184,20 +189,19 @@
         faces[i].lookAt(this.centerVector);
       }
       cubeWrap.position.set(pos.x, pos.y, pos.z);
-      producer = new Producer('producer');
-      gainNode = context.createGainNode();
-      producer.out.connect(gainNode);
-      gainNode.connect(context.destination);
-      producer.start();
       this.scene.add(cubeWrap);
-      this.cubez.push({
-        obj: cubeWrap,
-        track: trackUrl,
-        trackData: trackData,
-        producer: producer,
-        gainNode: gainNode
-      });
-      return console.log(this.cubez);
+      return _.delay((function() {
+        var cubeObj;
+        cubeObj = {
+          obj: cubeWrap,
+          track: trackUrl,
+          trackObj: $(audioEl)[0],
+          trackData: trackData
+        };
+        _this.cubez.push(cubeObj);
+        producer_init(cubeObj);
+        return console.log(_this.cubez);
+      }), 10);
     };
 
     Yolo.prototype.buildEls = function() {
@@ -224,9 +228,9 @@
           trackUrl = track.object.stream.url + "?client_id=c280d0c248513cfc78d7ee05b52bf15e";
           size = (Math.random() * 100) + 100;
           coords = {
-            x: Math.random() * 30000,
+            x: Math.random() * 10000,
             y: Math.random() * 5,
-            z: Math.random() * 30000
+            z: Math.random() * 10000
           };
           _results.push(_this.makeCube(size, coords, trackUrl, track));
         }
@@ -243,7 +247,7 @@
     };
 
     Yolo.prototype.haveFun = function() {
-      var cube, distance, value, _i, _len, _ref, _ref1, _results;
+      var cube, _i, _len, _ref, _ref1, _results;
       if ((_ref = this.cubez) != null ? _ref.length : void 0) {
         _ref1 = this.cubez;
         _results = [];
@@ -252,9 +256,7 @@
           cube.obj.rotation.x += 0.003;
           cube.obj.rotation.y += 0.002;
           cube.obj.rotation.z += 0.001;
-          distance = space.distance(this.controls.target, cube.obj.position);
-          value = (1 / Math.pow(distance, 2)) * 10000;
-          _results.push(cube.gainNode.gain.value = value > 1 ? 1 : value);
+          _results.push(producer_schedule(cube.producer));
         }
         return _results;
       }
