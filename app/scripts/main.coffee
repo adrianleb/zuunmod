@@ -157,7 +157,7 @@ class Yolo
   buildControls: ->
 
     $(document).on 'click', '.media_each', (e) =>
-      console.log @, e, e.currentTarget
+      # console.log @, e, e.currentTarget
 
     $(window).on 'keydown', (e) =>
 
@@ -252,22 +252,32 @@ class Yolo
   buildEls: ->
     @counter = 0 
     @scene = new THREE.Scene()
+    console.log shuffler, 'is shuffler ther?'
+
+    tracks = shuffler.fetchChannel 'jazz', (tracks) =>
+      goodTracks = _.filter tracks, (t, i) =>
+        t.object.stream.platform is 'soundcloud'
+
+      @tracks = goodTracks
 
 
-    @producers = []
 
-    cubeCount = 10
-    @cubez = []
+      console.log 'i haz tracks?', tracks
 
-    # create #{count} amount of cubes on coords at certain size
-    for i in [0...cubeCount]
-      size = Math.random() * 30
-      coords = 
-        x: Math.random() * 3000
-        y: Math.random() * 5
-        z: Math.random() * 3000
-      @makeCube size,coords
-      
+      @producers = []
+
+      cubeCount = 10
+      @cubez = []
+
+      # create #{count} amount of cubes on coords at certain size
+      for i in [0...cubeCount]
+        size = Math.random() * 30
+        coords = 
+          x: Math.random() * 3000
+          y: Math.random() * 5
+          z: Math.random() * 3000
+        @makeCube size,coords
+        
 
 
     # prep renderer
@@ -289,8 +299,8 @@ class Yolo
         y: Math.random() * 5
         z: Math.random() * 3000
 
-    for cube in @cubez
-      console.log cube
+    # for cube in @cubez
+      # console.log cube
       # @transform cube.obj, coords, 1000
 
   # transform: (object, target, duration) ->
@@ -318,7 +328,7 @@ class Yolo
       # value = 1000000 / Math.pow(@controls.target.distanceTo(cube.obj.position), 2)
       cube.gainNode.gain.value = if value > 1 then 1 else value
       if @counter < 200
-        console.log value, distance, @controls.target, cube.obj.position
+        # console.log value, distance, @controls.target, cube.obj.position
         @counter++
 
   animate: ->
@@ -342,15 +352,64 @@ class Yolo
 
 
 
+class Player
+
+  constructor: ->
+    @
+
+  loadBufferAndPlay: (url) ->
+  
+  # Load asynchronously
+  request = new XMLHttpRequest()
+  request.open "GET", url, true
+  request.responseType = "arraybuffer"
+  request.onload = ->
+    source.buffer = context.createBuffer(request.response, true)
+    source.noteOn 0
 
 
 
 
+
+
+class Shuffler
+
+  root: "http://api.shuffler.fm/v1/"
+
+
+  constructor: ->
+    @
+
+
+
+  fetchChannel: (channel, callback) ->
+    url = @channel_url channel
+
+    req = $.getJSON url, (res) ->
+      console.log 'succless', res
+
+      if callback? then callback res
+      res
+
+
+  encodeParams: (params) ->
+    defaults =
+      "api-key": "zlspn5imm91ak2z7nk3g" # PRO:  user_id: 26586 (adrian)
+      # "api-key": "api-test-key" # PRE
+    $.extend(params, defaults)
+    "?" + $.param(params)
+
+  channel_url: (key, params = {}) ->
+    @root + 'channels/' + escape(key) + @encodeParams(params) + "&callback=?"
+
+  genres_url: (params = {})->
+    @root + 'genres' + @encodeParams(params)
 
 
 
 
 (->
+  window.shuffler = new Shuffler()
   window.space = new Space()
   window.context = new webkitAudioContext()
   # window.dessau = new Dessau()

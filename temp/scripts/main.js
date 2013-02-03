@@ -1,5 +1,5 @@
 (function() {
-  var Dessau, Listener, Object, Producer, Space, Vector, Yolo,
+  var Dessau, Listener, Object, Player, Producer, Shuffler, Space, Vector, Yolo,
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
@@ -165,9 +165,7 @@
 
     Yolo.prototype.buildControls = function() {
       var _this = this;
-      $(document).on('click', '.media_each', function(e) {
-        return console.log(_this, e, e.currentTarget);
-      });
+      $(document).on('click', '.media_each', function(e) {});
       $(window).on('keydown', function(e) {
         var key;
         key = e.which;
@@ -253,21 +251,33 @@
     };
 
     Yolo.prototype.buildEls = function() {
-      var coords, cubeCount, i, size, _i;
+      var tracks,
+        _this = this;
       this.counter = 0;
       this.scene = new THREE.Scene();
-      this.producers = [];
-      cubeCount = 10;
-      this.cubez = [];
-      for (i = _i = 0; 0 <= cubeCount ? _i < cubeCount : _i > cubeCount; i = 0 <= cubeCount ? ++_i : --_i) {
-        size = Math.random() * 30;
-        coords = {
-          x: Math.random() * 3000,
-          y: Math.random() * 5,
-          z: Math.random() * 3000
-        };
-        this.makeCube(size, coords);
-      }
+      console.log(shuffler, 'is shuffler ther?');
+      tracks = shuffler.fetchChannel('jazz', function(tracks) {
+        var coords, cubeCount, goodTracks, i, size, _i, _results;
+        goodTracks = _.filter(tracks, function(t, i) {
+          return t.object.stream.platform === 'soundcloud';
+        });
+        _this.tracks = goodTracks;
+        console.log('i haz tracks?', tracks);
+        _this.producers = [];
+        cubeCount = 10;
+        _this.cubez = [];
+        _results = [];
+        for (i = _i = 0; 0 <= cubeCount ? _i < cubeCount : _i > cubeCount; i = 0 <= cubeCount ? ++_i : --_i) {
+          size = Math.random() * 30;
+          coords = {
+            x: Math.random() * 3000,
+            y: Math.random() * 5,
+            z: Math.random() * 3000
+          };
+          _results.push(_this.makeCube(size, coords));
+        }
+        return _results;
+      });
       this.renderer = new THREE.CSS3DRenderer();
       this.renderer.setSize(window.innerWidth, window.innerHeight);
       this.renderer.domElement.style.position = 'absolute';
@@ -277,19 +287,12 @@
     };
 
     Yolo.prototype.moveThem = function() {
-      var coords, cube, _i, _len, _ref, _results;
-      coords = {
+      var coords;
+      return coords = {
         x: Math.random() * 3000,
         y: Math.random() * 5,
         z: Math.random() * 3000
       };
-      _ref = this.cubez;
-      _results = [];
-      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-        cube = _ref[_i];
-        _results.push(console.log(cube));
-      }
-      return _results;
     };
 
     Yolo.prototype.haveFun = function() {
@@ -305,7 +308,6 @@
         value = (1 / Math.pow(distance, 2)) * 10000;
         cube.gainNode.gain.value = value > 1 ? 1 : value;
         if (this.counter < 200) {
-          console.log(value, distance, this.controls.target, cube.obj.position);
           _results.push(this.counter++);
         } else {
           _results.push(void 0);
@@ -328,7 +330,81 @@
 
   }).call(this);
 
+  Player = (function() {
+    var request;
+
+    function Player() {
+      this;
+
+    }
+
+    Player.prototype.loadBufferAndPlay = function(url) {};
+
+    request = new XMLHttpRequest();
+
+    request.open("GET", url, true);
+
+    request.responseType = "arraybuffer";
+
+    request.onload = function() {
+      source.buffer = context.createBuffer(request.response, true);
+      return source.noteOn(0);
+    };
+
+    return Player;
+
+  })();
+
+  Shuffler = (function() {
+
+    Shuffler.prototype.root = "http://api.shuffler.fm/v1/";
+
+    function Shuffler() {
+      this;
+
+    }
+
+    Shuffler.prototype.fetchChannel = function(channel, callback) {
+      var req, url;
+      url = this.channel_url(channel);
+      return req = $.getJSON(url, function(res) {
+        console.log('succless', res);
+        if (callback != null) {
+          callback(res);
+        }
+        return res;
+      });
+    };
+
+    Shuffler.prototype.encodeParams = function(params) {
+      var defaults;
+      defaults = {
+        "api-key": "zlspn5imm91ak2z7nk3g"
+      };
+      $.extend(params, defaults);
+      return "?" + $.param(params);
+    };
+
+    Shuffler.prototype.channel_url = function(key, params) {
+      if (params == null) {
+        params = {};
+      }
+      return this.root + 'channels/' + escape(key) + this.encodeParams(params) + "&callback=?";
+    };
+
+    Shuffler.prototype.genres_url = function(params) {
+      if (params == null) {
+        params = {};
+      }
+      return this.root + 'genres' + this.encodeParams(params);
+    };
+
+    return Shuffler;
+
+  })();
+
   (function() {
+    window.shuffler = new Shuffler();
     window.space = new Space();
     window.context = new webkitAudioContext();
     window.yolo = new Yolo();
