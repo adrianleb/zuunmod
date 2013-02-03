@@ -187,7 +187,7 @@ class Yolo
 
 
 
-  makeCube: (size, pos) ->
+  makeCube: (size, pos, url) ->
     wrapEl = document.createElement( 'section' )
     wrapEl.style.width = '200px'
     wrapEl.style.height = '200px'
@@ -237,13 +237,18 @@ class Yolo
     gainNode.connect(context.destination)
     producer.start()
 
+
+
     # add to scene and store 
     @scene.add cubeWrap
     @cubez.push {
       obj: cubeWrap
+      track: url
       producer: producer
       gainNode: gainNode
     }
+
+    console.log @cubez
 
 
 
@@ -259,6 +264,7 @@ class Yolo
         t.object.stream.platform is 'soundcloud'
 
       @tracks = goodTracks
+      console.log @tracks
 
 
 
@@ -269,14 +275,16 @@ class Yolo
       cubeCount = 10
       @cubez = []
 
+
       # create #{count} amount of cubes on coords at certain size
-      for i in [0...cubeCount]
+      for track in @tracks
+        track = track.object.stream.url + "?client_id=c280d0c248513cfc78d7ee05b52bf15e"
         size = Math.random() * 30
         coords = 
           x: Math.random() * 3000
           y: Math.random() * 5
           z: Math.random() * 3000
-        @makeCube size,coords
+        @makeCube size,coords, track
         
 
 
@@ -286,6 +294,12 @@ class Yolo
     @renderer.domElement.style.position = 'absolute'
     @renderer.domElement.style.top = 0
     $('body').append @renderer.domElement
+
+
+    # let it breath, start game loop
+    _.delay (=>
+      @animate()
+    ), 200
     
     # animate translation
     @moveThem()
@@ -314,22 +328,22 @@ class Yolo
 
 
   haveFun: ->
+    if @cubez?.length
+      for cube in @cubez
+        cube.obj.rotation.x +=0.05# * Math.random() 
+        cube.obj.rotation.y +=0.04
+        cube.obj.rotation.z +=0.03
 
-    for cube in @cubez
-      cube.obj.rotation.x +=0.05# * Math.random() 
-      cube.obj.rotation.y +=0.04
-      cube.obj.rotation.z +=0.03
-
-      distance = space.distance(@controls.target, cube.obj.position)
+        distance = space.distance(@controls.target, cube.obj.position)
 
 
-      # crazyness
-      value = (1 / Math.pow((distance), 2)) * 10000
-      # value = 1000000 / Math.pow(@controls.target.distanceTo(cube.obj.position), 2)
-      cube.gainNode.gain.value = if value > 1 then 1 else value
-      if @counter < 200
-        # console.log value, distance, @controls.target, cube.obj.position
-        @counter++
+        # crazyness
+        value = (1 / Math.pow((distance), 2)) * 10000
+        # value = 1000000 / Math.pow(@controls.target.distanceTo(cube.obj.position), 2)
+        cube.gainNode.gain.value = if value > 1 then 1 else value
+        if @counter < 200
+          # console.log value, distance, @controls.target, cube.obj.position
+          @counter++
 
   animate: ->
     # unless not @allowedToRender
@@ -352,20 +366,20 @@ class Yolo
 
 
 
-class Player
+# class Player
 
-  constructor: ->
-    @
+#   constructor: ->
+#     @
 
-  loadBufferAndPlay: (url) ->
+#   loadBufferAndPlay: (url) ->
   
-  # Load asynchronously
-  request = new XMLHttpRequest()
-  request.open "GET", url, true
-  request.responseType = "arraybuffer"
-  request.onload = ->
-    source.buffer = context.createBuffer(request.response, true)
-    source.noteOn 0
+#   # Load asynchronously
+#   request = new XMLHttpRequest()
+#   request.open "GET", url, true
+#   request.responseType = "arraybuffer"
+#   request.onload = ->
+#     source.buffer = context.createBuffer(request.response, true)
+#     source.noteOn 0
 
 
 
@@ -415,10 +429,10 @@ class Shuffler
   # window.dessau = new Dessau()
   window.yolo = new Yolo()
 
-  setTimeout ( ->
-    yolo.animate()
-    # yolo.controlRendering 'start'
-    console.log 'yolo'
-  ), 500
+  # setTimeout ( ->
+  #   yolo.animate()
+  #   # yolo.controlRendering 'start'
+  #   console.log 'yolo'
+  # ), 500
 
 )()

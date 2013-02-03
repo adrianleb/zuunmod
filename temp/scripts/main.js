@@ -1,5 +1,5 @@
 (function() {
-  var Dessau, Listener, Object, Player, Producer, Shuffler, Space, Vector, Yolo,
+  var Dessau, Listener, Object, Producer, Shuffler, Space, Vector, Yolo,
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
@@ -210,7 +210,7 @@
       return console.log('yolo back');
     });
 
-    Yolo.prototype.makeCube = function(size, pos) {
+    Yolo.prototype.makeCube = function(size, pos, url) {
       var cubeWrap, face, faces, gainNode, i, img, producer, wrapEl, _i, _j, _ref;
       wrapEl = document.createElement('section');
       wrapEl.style.width = '200px';
@@ -243,11 +243,13 @@
       gainNode.connect(context.destination);
       producer.start();
       this.scene.add(cubeWrap);
-      return this.cubez.push({
+      this.cubez.push({
         obj: cubeWrap,
+        track: url,
         producer: producer,
         gainNode: gainNode
       });
+      return console.log(this.cubez);
     };
 
     Yolo.prototype.buildEls = function() {
@@ -257,24 +259,28 @@
       this.scene = new THREE.Scene();
       console.log(shuffler, 'is shuffler ther?');
       tracks = shuffler.fetchChannel('jazz', function(tracks) {
-        var coords, cubeCount, goodTracks, i, size, _i, _results;
+        var coords, cubeCount, goodTracks, size, track, _i, _len, _ref, _results;
         goodTracks = _.filter(tracks, function(t, i) {
           return t.object.stream.platform === 'soundcloud';
         });
         _this.tracks = goodTracks;
+        console.log(_this.tracks);
         console.log('i haz tracks?', tracks);
         _this.producers = [];
         cubeCount = 10;
         _this.cubez = [];
+        _ref = _this.tracks;
         _results = [];
-        for (i = _i = 0; 0 <= cubeCount ? _i < cubeCount : _i > cubeCount; i = 0 <= cubeCount ? ++_i : --_i) {
+        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+          track = _ref[_i];
+          track = track.object.stream.url + "?client_id=c280d0c248513cfc78d7ee05b52bf15e";
           size = Math.random() * 30;
           coords = {
             x: Math.random() * 3000,
             y: Math.random() * 5,
             z: Math.random() * 3000
           };
-          _results.push(_this.makeCube(size, coords));
+          _results.push(_this.makeCube(size, coords, track));
         }
         return _results;
       });
@@ -283,6 +289,9 @@
       this.renderer.domElement.style.position = 'absolute';
       this.renderer.domElement.style.top = 0;
       $('body').append(this.renderer.domElement);
+      _.delay((function() {
+        return _this.animate();
+      }), 200);
       return this.moveThem();
     };
 
@@ -296,24 +305,26 @@
     };
 
     Yolo.prototype.haveFun = function() {
-      var cube, distance, value, _i, _len, _ref, _results;
-      _ref = this.cubez;
-      _results = [];
-      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-        cube = _ref[_i];
-        cube.obj.rotation.x += 0.05;
-        cube.obj.rotation.y += 0.04;
-        cube.obj.rotation.z += 0.03;
-        distance = space.distance(this.controls.target, cube.obj.position);
-        value = (1 / Math.pow(distance, 2)) * 10000;
-        cube.gainNode.gain.value = value > 1 ? 1 : value;
-        if (this.counter < 200) {
-          _results.push(this.counter++);
-        } else {
-          _results.push(void 0);
+      var cube, distance, value, _i, _len, _ref, _ref1, _results;
+      if ((_ref = this.cubez) != null ? _ref.length : void 0) {
+        _ref1 = this.cubez;
+        _results = [];
+        for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
+          cube = _ref1[_i];
+          cube.obj.rotation.x += 0.05;
+          cube.obj.rotation.y += 0.04;
+          cube.obj.rotation.z += 0.03;
+          distance = space.distance(this.controls.target, cube.obj.position);
+          value = (1 / Math.pow(distance, 2)) * 10000;
+          cube.gainNode.gain.value = value > 1 ? 1 : value;
+          if (this.counter < 200) {
+            _results.push(this.counter++);
+          } else {
+            _results.push(void 0);
+          }
         }
+        return _results;
       }
-      return _results;
     };
 
     Yolo.prototype.animate = function() {
@@ -329,31 +340,6 @@
     return Yolo;
 
   }).call(this);
-
-  Player = (function() {
-    var request;
-
-    function Player() {
-      this;
-
-    }
-
-    Player.prototype.loadBufferAndPlay = function(url) {};
-
-    request = new XMLHttpRequest();
-
-    request.open("GET", url, true);
-
-    request.responseType = "arraybuffer";
-
-    request.onload = function() {
-      source.buffer = context.createBuffer(request.response, true);
-      return source.noteOn(0);
-    };
-
-    return Player;
-
-  })();
 
   Shuffler = (function() {
 
@@ -407,11 +393,7 @@
     window.shuffler = new Shuffler();
     window.space = new Space();
     window.context = new webkitAudioContext();
-    window.yolo = new Yolo();
-    return setTimeout((function() {
-      yolo.animate();
-      return console.log('yolo');
-    }), 500);
+    return window.yolo = new Yolo();
   })();
 
 }).call(this);
