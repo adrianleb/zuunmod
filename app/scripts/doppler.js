@@ -33,8 +33,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 // Events
 
-var producerKAmbientGain = 0.2;
-var producerKMainSweepDistance = 30.0;
+var producerKAmbientGain = 0.1;
+var producerKMainSweepDistance = 1.0;
 
 function producer_set_reverb_impulse_response(producer, url) {
   // Load impulse response asynchronously
@@ -42,7 +42,7 @@ function producer_set_reverb_impulse_response(producer, url) {
   request.open("GET", url, true);
   request.responseType = "arraybuffer";
   request.onload = function() { 
-    // producer.convolver.buffer = context.createBuffer(request.response, false);
+    producer.convolver.buffer = context.createBuffer(request.response, false);
   }
   
   request.send();
@@ -76,7 +76,7 @@ function producer_schedule(producer) {
    // producer.panner.setPosition(targetPosition.x, targetPosition.y, targetPosition.z); 
    
    // Velocity (for doppler effect)
-   var kVelocityScale = 50.0;
+   var kVelocityScale = 1.0;
    var deltaX = kVelocityScale * (targetPosition.x - producer.gLastX);
    var deltaY = kVelocityScale * (targetPosition.y - producer.gLastY);
    var deltaZ = kVelocityScale * (targetPosition.z - producer.gLastZ);
@@ -137,18 +137,20 @@ function producer_schedule(producer) {
      
      // setReverbImpulseResponse('impulse-responses/tim-warehouse/cardiod-true-stereo-15-8/cardiod-true-stereo-15-8.wav');
      // setReverbImpulseResponse('impulse-responses/house-impulses/dining-living-true-stereo.wav');
-     producer_set_reverb_impulse_response(producer, 'wav/s3_r4_bd.wav');
+
 
      // producer.source.playbackRate.value = 0.75;
 
      // copying the position from cube to panner (we'll need to keep this up to date) 
      producer.panner.setPosition(cube.obj.position.x, cube.obj.position.y, cube.obj.position.z);
 
-     // producer.source.loop = true;
+     producer.source.mediaElement.loop = true;
 
      // Load up initial buffer
      // producer_load_buffer_and_play(cube);  
      producer.source.mediaElement.play()
+
+     // producer_set_reverb_impulse_response(producer, 'wav/s3_r4_bd.wav')
 
      // Start moving the source
      producer_schedule(producer);

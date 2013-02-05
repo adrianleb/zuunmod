@@ -108,8 +108,8 @@ class Yolo
   makeCube: (size, pos, trackUrl, trackData) ->
 
     wrapEl = document.createElement( 'section' )
-    wrapEl.style.width = '200px'
-    wrapEl.style.height = '200px'
+    wrapEl.style.width = '400px'
+    wrapEl.style.height = '400px'
     wrapEl.classList.add 'box_wrap'
 
     # audioEl = "<audio src='#{trackUrl}' />"
@@ -223,11 +223,11 @@ class Yolo
       for track in @tracks
       # track = @tracks[0]
         trackUrl = track.object.stream.url + "?client_id=c280d0c248513cfc78d7ee05b52bf15e"
-        size = (Math.random() * 100) + 100
+        size = (Math.random() * 100) + 350
         coords = 
-          x: Math.random() * 10000
+          x: (Math.random() * 20000) + 200
           y: Math.random() * 5
-          z: Math.random() * 10000
+          z: (Math.random() * 20000) + 200
         @makeCube size,coords, trackUrl, track
         
 
@@ -249,9 +249,9 @@ class Yolo
   haveFun: ->
     if @cubez?.length
       for cube in @cubez
-        cube.obj.rotation.x +=0.003# * Math.random() 
-        cube.obj.rotation.y +=0.002
-        cube.obj.rotation.z +=0.001
+        # cube.obj.rotation.x +=0.003# * Math.random() 
+        # cube.obj.rotation.y +=0.002
+        # cube.obj.rotation.z +=0.001
 
 
         # distance = space.distance(@controls.target, cube.obj.position)
