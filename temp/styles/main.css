@@ -23,3 +23,14 @@
 .box_face h1 {
   -webkit-font-smoothing: antialiased;
 }
+
+/* line 35, ../../app/styles/main.scss */
+html {
+  background-image: url(http://i.imgur.com/yahc0.gif);
+  background-size: cover;
+}
+
+/* line 46, ../../app/styles/main.scss */
+body > div {
+  height: 100%!important;
+}

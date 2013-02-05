@@ -31,3 +31,18 @@
     -webkit-font-smoothing: antialiased;
   }
 }
+
+html {
+  background-image: url(http://i.imgur.com/yahc0.gif);
+  // -webkit-transform: translateZ(0);
+  // position: absolute;
+  // height: 100%;
+  // width: 100%;
+  // left: 0;
+  // top:0;
+  // z-index: 1;
+  background-size: cover;
+}
+body > div {
+  height: 100%!important;
+}
