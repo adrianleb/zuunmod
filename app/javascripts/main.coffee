@@ -76,7 +76,7 @@ class Listener extends Object
       o.gainNode.gain.value = if value > 1 then 1 else value
       $('.gain').html(o.gainNode.gain.value)
 
-class Yolo
+class World
   constructor: ->
     @buildCam()
     @buildEls()
@@ -115,7 +115,11 @@ class Yolo
     # audioEl = "<audio src='#{trackUrl}' />"
     audioEl = new Audio
     audioEl.src = trackUrl
+    audioEl.loop = 'loop'
     audioEl.preload = 'none'
+    # audioEl.autoplay = 'true'
+
+
 
     $(wrapEl).append audioEl
 
@@ -129,7 +133,7 @@ class Yolo
     for i in [0...6]
 
       # img = new Image()
-      console.log trackData.object
+      # console.log trackData.object
       face = document.createElement( 'div' )
 
       title = trackData.object.metadata.title
@@ -191,7 +195,7 @@ class Yolo
       # _.delay (=>
       producer_init cubeObj
       # ), 100
-      console.log @cubez
+      # console.log @cubez
 
     ), 10
 
@@ -200,18 +204,18 @@ class Yolo
   buildEls: ->
     @counter = 0 
     @scene = new THREE.Scene()
-    console.log shuffler, 'is shuffler ther?'
+    # console.log shuffler, 'is shuffler ther?'
 
     tracks = shuffler.fetchChannel 'jazz', (tracks) =>
       goodTracks = _.filter tracks, (t, i) =>
         t.object.stream.platform is 'soundcloud'
 
       @tracks = goodTracks
-      console.log @tracks
+      # console.log @tracks
 
 
 
-      console.log 'i haz tracks?', tracks
+      # console.log 'i haz tracks?', tracks
 
       @producers = []
 
@@ -253,6 +257,11 @@ class Yolo
         # cube.obj.rotation.y +=0.002
         # cube.obj.rotation.z +=0.001
 
+        cube.obj.rotation.x +=0.003# * Math.random() 
+        cube.obj.rotation.y +=0.002
+        cube.obj.rotation.z +=0.001
+
+
 
         # distance = space.distance(@controls.target, cube.obj.position)
         producer_schedule( cube.producer )
@@ -263,19 +272,19 @@ class Yolo
         # cube.gainNode.gain.value = if value > 1 then 1 else value
         # if @counter < 200
 
-        #   console.log value, distance, @controls.target, cube.obj.position
+        #   # console.log value, distance, @controls.target, cube.obj.position
         #   @counter++
 
   animate: ->
     # unless not @allowedToRender
-    requestAnimationFrame( yolo.animate )
+    requestAnimationFrame( world.animate )
 
 
-    yolo.haveFun()
+    world.haveFun()
 
-    delta = yolo.clock.getDelta()
-    yolo.controls.update(delta)
-    yolo.renderer.render( yolo.scene, yolo.camera )
+    delta = world.clock.getDelta()
+    world.controls.update(delta)
+    world.renderer.render( world.scene, world.camera )
 
 
 
@@ -321,7 +330,7 @@ class Shuffler
     url = @channel_url channel
 
     req = $.getJSON url, (res) ->
-      console.log 'succless', res
+      # console.log 'succless', res
 
       if callback? then callback res
       res
@@ -347,12 +356,12 @@ class Shuffler
   window.shuffler = new Shuffler()
   window.space = new Space()
   window.context = new webkitAudioContext()
-  window.yolo = new Yolo()
+  window.world = new World()
 
   # setTimeout ( ->
-  #   yolo.animate()
-  #   # yolo.controlRendering 'start'
-  #   console.log 'yolo'
+  #   world.animate()
+  #   # world.controlRendering 'start'
+  #   # console.log 'world'
   # ), 500
 
 )()

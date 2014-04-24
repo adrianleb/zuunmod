@@ -71,7 +71,7 @@ function producer_load_buffer_and_play(cube) {
 function producer_schedule(producer) {
    // Calculate velocity for doppler effect
 
-   targetPosition = yolo.controls.target
+   targetPosition = world.controls.target
    context.listener.setPosition(targetPosition.x, targetPosition.y, targetPosition.z); 
    // producer.panner.setPosition(targetPosition.x, targetPosition.y, targetPosition.z); 
    
