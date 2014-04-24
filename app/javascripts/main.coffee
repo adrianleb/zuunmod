@@ -206,7 +206,7 @@ class World
     @scene = new THREE.Scene()
     # console.log shuffler, 'is shuffler ther?'
 
-    tracks = shuffler.fetchChannel 'jazz', (tracks) =>
+    tracks = shuffler.fetchChannel 'electronic', (tracks) =>
       goodTracks = _.filter tracks, (t, i) =>
         t.object.stream.platform is 'soundcloud'
 
